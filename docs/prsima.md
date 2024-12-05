@@ -35,6 +35,8 @@ model Post {
   published Boolean @default(false)
   author    User    @relation(fields: [authorId], references: [id])
   authorId  Int
+
+  @@map("posts") // 指定表名
 }
 
 ```
@@ -92,4 +94,14 @@ import { PrismaService } from './prisma.service';
   exports: [PrismaService], // 记得导出这样app.module.ts会顺着imports查找然后找到模块内部providers
 })
 export class PrismaModule {}
+```
+
+7. 添加一些常用脚本 `package.json`
+
+```json
+"scripts":{
+  "preinstall": "prisma generate",
+  "migrate:create":"prisma migrate dev",
+  "migrate:deploy":"prisma migrate deploy"
+}
 ```
