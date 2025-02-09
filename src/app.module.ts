@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
+import { WinstonModule, utilities as nestWinstonUtils } from 'nest-winston';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
-import { WinstonModule, utilities as nestWinstonUtils } from 'nest-winston';
 
+import * as Joi from 'joi';
 import * as winston from 'winston';
 
+import { ConfigModule } from '@nestjs/config';
 import * as DailyRotateFile from 'winston-daily-rotate-file';
+
+/**
+ * 配置模块
+ */
+const envFilePath = [`.env.${process.env.NODE_ENV || 'development'}`, '.env'];
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -30,6 +37,11 @@ function createDailyRotateFileTransport(level: string, fileName: string) {
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, // 全局使用
+      envFilePath,
+      validationSchema: Joi.object({}), // 验证规则
+    }),
     PrismaModule,
     WinstonModule.forRoot({
       transports: [
