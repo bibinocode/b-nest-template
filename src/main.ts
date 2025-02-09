@@ -1,4 +1,4 @@
-import { VersioningType } from '@nestjs/common';
+import { VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -37,11 +37,17 @@ async function bootstrap() {
    * API配置
    */
   const apiPrefix = Config.get<string>('API_PREFIX', '/api');
-  const apiVersion = Config.get<string>('API_VERSION', '1');
+  const apiVersion = Config.get<string>('API_VERSION');
+  let versions = [apiVersion];
+  if (apiVersion.indexOf(',')) {
+    versions = apiVersion.split(',');
+  }
+
   app.setGlobalPrefix(apiPrefix);
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: [apiVersion],
+    defaultVersion:
+      typeof versions === 'undefined' ? VERSION_NEUTRAL : versions, // 如果环境变量没有配置版本号，则去兼容路由版本 和默认请求的兼容问题
   });
 
   /**
