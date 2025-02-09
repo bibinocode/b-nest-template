@@ -1,3 +1,4 @@
+import { VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -23,6 +24,25 @@ async function bootstrap() {
   if (isGlobalErrorFilterOn) {
     app.useGlobalFilters(new AllExceptionFilter(app.get(HttpAdapterHost)));
   }
+
+  /**
+   * API跨域请求配置
+   */
+  const corsOn = Config.get<boolean>('API_CORS_ON', false);
+  if (corsOn) {
+    app.enableCors();
+  }
+
+  /**
+   * API配置
+   */
+  const apiPrefix = Config.get<string>('API_PREFIX', '/api');
+  const apiVersion = Config.get<string>('API_VERSION', '1');
+  app.setGlobalPrefix(apiPrefix);
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: [apiVersion],
+  });
 
   /**
    * PORT配置
