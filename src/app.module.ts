@@ -7,6 +7,7 @@ import { RedisModule } from '@nestjs-modules/ioredis';
 import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from './common/config/config.module';
 import { LoggerModule } from './common/logger/logger.module';
+import { MailerModule } from './common/mailer/mailer.module';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -24,7 +25,7 @@ console.log('🚀 ~ file: app.module.ts:13 ~ isDev:', isDev);
         }
       };
     },
-  }),
+  }), MailerModule,
 ],
   controllers: [AppController],
   providers: [AppService],
