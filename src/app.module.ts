@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaModule } from './prisma/prisma.module';
 
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from './common/config/config.module';
+import { PrismaModule } from './common/database/prisma/prisma.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { MailerModule } from './common/mailer/mailer.module';
 
