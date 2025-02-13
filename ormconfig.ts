@@ -25,7 +25,7 @@ export function buildDataSourceOptions() {
     username: config['DB_USERNAME'],
     password: config['DB_PASSWORD'],
     database: config['DB_DATABASE'],
-    entities: [__dirname + '/**/*.entity{.ts,.js}'],
+    entities: [__dirname + '/src/**/*.entity{.ts,.js}'],
     synchronize: config['DB_SYNCHRONIZE'],
     autoLoadEntities: config['DB_AUTO_LOAD_ENTITIES'],
   } as TypeOrmModuleOptions;
