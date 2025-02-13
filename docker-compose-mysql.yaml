@@ -1,0 +1,24 @@
+services:
+  db:
+    image: mysql
+    restart: always
+    container_name: mysql1
+    environment:
+      MYSQL_ROOT_PASSWORD: JHYnGfzMfmXS7Y6X
+      MYSQL_DATABASE: b-nest-server
+    ports:
+      - 3306:3306
+  db2:
+    image: mysql
+    restart: always
+    container_name: mysql2
+    environment:
+      MYSQL_ROOT_PASSWORD: JHYnGfzMfmXS7Y6X
+      MYSQL_DATABASE: b-nest-server
+    ports:
+      - 3307:3306
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 9853:8080
