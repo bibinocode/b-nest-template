@@ -54,6 +54,11 @@ async function bootstrap() {
   });
 
   /**
+   * 开启生命周期
+   */
+  app.enableShutdownHooks();
+
+  /**
    * PORT配置
    */
   const PORT = Config.get<number>('PORT', 3000);
