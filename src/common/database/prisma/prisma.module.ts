@@ -6,9 +6,16 @@ import { PrismaModuleOptions } from './prisma-options.interface';
 export class PrismaModule {
   static forRoot(options: PrismaModuleOptions): DynamicModule;
   static forRoot(url: string): DynamicModule;
-  static forRoot(arg: any): DynamicModule {
-    let _options: any;
-    if (typeof arg === 'string') {
+  static forRoot(url: string, name: string): DynamicModule;
+  static forRoot(arg: any, ...args): DynamicModule {
+    let _options: PrismaModuleOptions;
+
+    if (args && args.length) {
+      _options = {
+        url: arg,
+        connectionName: args[0],
+      };
+    } else if (typeof arg === 'string') {
       _options = {
         url: arg,
       };
