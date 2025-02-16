@@ -56,6 +56,12 @@ dependencies:
   nodemailer:
     specifier: ^6.10.0
     version: 6.10.0
+  prisma-mysql:
+    specifier: link:prisma/clients/mysql
+    version: link:prisma/clients/mysql
+  prisma-postgresql:
+    specifier: link:prisma/clients/postgresql
+    version: link:prisma/clients/postgresql
   reflect-metadata:
     specifier: ^0.1.14
     version: 0.1.14

@@ -47,6 +47,8 @@
     "nest-typescript-starter": "link:",
     "nest-winston": "^1.10.2",
     "nodemailer": "^6.10.0",
+    "prisma-mysql": "link:prisma/clients/mysql",
+    "prisma-postgresql": "link:prisma/clients/postgresql",
     "reflect-metadata": "^0.1.14",
     "request-ip": "^3.3.0",
     "rxjs": "^7.8.1",

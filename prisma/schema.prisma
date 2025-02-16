@@ -6,6 +6,8 @@
 
 generator client {
   provider = "prisma-client-js"
+  output = "./clients/mysql"
+  // output = "./clients/postgresql"
 }
 
 datasource db {
