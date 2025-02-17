@@ -14,14 +14,31 @@ import {
   PrismaModuleOptions,
   PrismaOptionsFactory,
 } from './prisma-options.interface';
-import { PRISMA_MODULE_OPTIONS, PRISMACLIENT } from './prisma.constants';
+import {
+  PRISMA_CONNECTIONS,
+  PRISMA_MODULE_OPTIONS,
+  PRISMACLIENT,
+} from './prisma.constants';
 import { getDBTYpe, handleRetry } from './prisma.utils';
 
 @Global()
 @Module({})
 export class PrismaCoreModule implements OnApplicationShutdown {
-  onApplicationShutdown(signal?: string) {
-    throw new Error('Method not implemented.');
+  static connections: Record<string, any> = {};
+  onApplicationShutdown() {
+    if (
+      PrismaCoreModule.connections &&
+      Object.keys(PrismaCoreModule.connections).length > 0
+    ) {
+      for (const connection of PrismaCoreModule.connections.keys()) {
+        if (
+          connection?.$disconnect &&
+          typeof connection.$disconnect === 'function'
+        ) {
+          connection.$disconnect();
+        }
+      }
+    }
   }
   static forRoot(_options: PrismaModuleOptions): DynamicModule {
     const {
@@ -68,12 +85,15 @@ export class PrismaCoreModule implements OnApplicationShutdown {
     const prismaClientProviders: Provider = {
       provide: providerName,
       useFactory: async () => {
+        if (this.connections[url]) {
+          return this.connections[url];
+        }
         // 加入错误重试
         const client = await prismaConnectionErrorFactory(
           newOptions,
-          'PrismaClient',
+          providerName,
         );
-
+        this.connections[url] = client;
         // 获取最后一次的值
         return lastValueFrom(
           // 延迟执行
@@ -89,10 +109,15 @@ export class PrismaCoreModule implements OnApplicationShutdown {
       },
     };
 
+    const connectionsProvider: Provider = {
+      provide: PRISMA_CONNECTIONS,
+      useValue: this.connections,
+    };
+
     return {
       module: PrismaCoreModule,
-      providers: [prismaClientProviders],
-      exports: [prismaClientProviders],
+      providers: [prismaClientProviders, connectionsProvider],
+      exports: [prismaClientProviders, connectionsProvider],
     };
   }
 
@@ -139,12 +164,18 @@ export class PrismaCoreModule implements OnApplicationShutdown {
 
         // 只需要返回实例，和错误处理重试就行
         return lastValueFrom(
-          defer(() => {
+          defer(async () => {
+            // 这里处理连接实例管理
+            const url = newOptions.datasourceUrl;
+            if (this.connections[url]) {
+              return this.connections[url];
+            }
             // 这里不需要链接，prisma在query执行的时候自己会去链接
-            const client = prismaConnectionErrorFactory(
+            const client = await prismaConnectionErrorFactory(
               newOptions,
-              prismaModuleOptions.connectionName || PRISMACLIENT,
+              prismaModuleOptions.connectionName || 'PrismaClient',
             );
+            this.connections[url] = client;
             return client;
           }).pipe(
             // 自定义重试，这里参考nestjs/Typeorm官方重试
@@ -162,10 +193,19 @@ export class PrismaCoreModule implements OnApplicationShutdown {
     // 获取自己内部创建的链接Provider 注入到forRootAsync中，让使用者可以拿到
     const asyncProviders = this.createAsyncProviders(_options);
 
+    const connectionsProvider: Provider = {
+      provide: PRISMA_CONNECTIONS,
+      useValue: this.connections,
+    };
+
     return {
       module: PrismaCoreModule,
-      providers: [...asyncProviders, providerClientProvider],
-      exports: [providerClientProvider],
+      providers: [
+        ...asyncProviders,
+        providerClientProvider,
+        connectionsProvider,
+      ],
+      exports: [providerClientProvider, connectionsProvider],
     };
   }
 
