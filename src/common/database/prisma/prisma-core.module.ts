@@ -4,12 +4,17 @@ import {
   Module,
   OnApplicationShutdown,
   Provider,
+  Type,
 } from '@nestjs/common';
 import { PrismaClient as PrismaMysqlClient } from 'prisma-mysql';
 import { PrismaClient as PrismaPostgresqlCLient } from 'prisma-postgresql';
 import { catchError, defer, lastValueFrom } from 'rxjs';
-import { PrismaModuleOptions } from './prisma-options.interface';
-import { PRISMACLIENT } from './prisma.constants';
+import {
+  PrismaModuleAsyncOptions,
+  PrismaModuleFactory,
+  PrismaModuleOptions,
+} from './prisma-options.interface';
+import { PRISMA_MODULE_OPTIONS, PRISMACLIENT } from './prisma.constants';
 import { getDBTYpe, handleRetry } from './prisma.utils';
 
 @Global()
@@ -91,5 +96,147 @@ export class PrismaCoreModule implements OnApplicationShutdown {
     };
   }
 
-  static forRootAsync() {}
+  static forRootAsync(_options: PrismaModuleAsyncOptions): DynamicModule {
+    const provideName = _options.name || PRISMACLIENT;
+    const providerClientProvider: Provider = {
+      provide: provideName,
+      useFactory: (prismaModuleOptions: PrismaModuleOptions) => {
+        // 这里的prismaModuleOptions 其实就是 createAsyncProviders创建并且注入的 PRISMA_MODULE_OPTIONS
+        // 绕一大圈就是为了在这里拿到用户使用 useClass 和 useExisting 产生后的options
+        const {
+          url,
+          options = {},
+          retryAttempts = 3,
+          retryDelay = 3000,
+          connectionFactory,
+          connectionErrorFactory,
+        } = prismaModuleOptions;
+
+        let newOptions = {
+          datasourceUrl: url,
+        };
+        if (!Object.keys(options).length) {
+          newOptions = {
+            ...newOptions,
+            ...options,
+          };
+        }
+
+        const dbType = getDBTYpe(url);
+        let _prismaClient;
+        if (dbType === 'mysql') {
+          _prismaClient = PrismaMysqlClient;
+        } else if (dbType === 'postgresql') {
+          _prismaClient = PrismaPostgresqlCLient;
+        } else {
+          throw new Error(`不支持的链接数据库类型 ${dbType}`);
+        }
+
+        const prismaConnectionErrorFactory =
+          connectionFactory ||
+          (async (clientOptions) => await new _prismaClient(clientOptions));
+        connectionErrorFactory || ((error) => error);
+
+        // 只需要返回实例，和错误处理重试就行
+        return lastValueFrom(
+          defer(() => {
+            // 这里不需要链接，prisma在query执行的时候自己会去链接
+            const client = prismaConnectionErrorFactory(
+              newOptions,
+              prismaModuleOptions.connectionName || PRISMACLIENT,
+            );
+            return client;
+          }).pipe(
+            // 自定义重试，这里参考nestjs/Typeorm官方重试
+            handleRetry(retryAttempts, retryDelay),
+            // 错误处理
+            catchError((error) => {
+              throw prismaConnectionErrorFactory(error);
+            }),
+          ),
+        );
+      },
+      inject: [PRISMA_MODULE_OPTIONS],
+    };
+
+    // 获取自己内部创建的链接Provider 注入到forRootAsync中，让使用者可以拿到
+    const asyncProviders = this.createAsyncProviders(_options);
+
+    return {
+      module: PrismaCoreModule,
+      providers: [...asyncProviders, providerClientProvider],
+      exports: [providerClientProvider],
+    };
+  }
+
+  /**
+   * 创建异步的provider
+   */
+  private static createAsyncProviders(options: PrismaModuleAsyncOptions) {
+    // 这里是为了解决先实例化，再注入的问题
+    if (options.useExisting || options.useFactory) {
+      return [this.createAsyncOptionsProviders(options)];
+    }
+    const useClass = options.useClass as Type<PrismaModuleFactory>;
+    return [
+      this.createAsyncOptionsProviders(options),
+      {
+        provide: useClass,
+        useClass,
+      },
+    ];
+  }
+
+  /**
+   * 创建 PRISMA_MODULE_OPTIONS 的 provider 来源
+   */
+  private static createAsyncOptionsProviders(
+    options: PrismaModuleAsyncOptions,
+  ) {
+    /**
+     * 如果用户传入了useFactory，则使用用户定义的useFactory
+     *
+     * @example
+     * PrismaModule.forRootAsync({
+     *  useFactory: async (configService: ConfigService) => ({
+     *    url: configService.get('DATABASE_URL'),
+     *  }),
+     *  inject: [ConfigService],
+     * })
+     */
+    if (options.useFactory) {
+      return {
+        provide: PRISMA_MODULE_OPTIONS,
+        useFactory: options.useFactory,
+        inject: options.inject || [],
+      };
+    }
+    /**
+     * 用户没有传入useFactory，则使用useClass或者useExisting
+     * useExisting: 使用已有的模块
+     * useClass: 使用新的模块
+     *
+     * @example
+     * PrismaModule.forRootAsync({
+     *  useFactory: async (configService: ConfigService) => ({
+     *    url: configService.get('DATABASE_URL'),
+     *  }),
+     *  inject: [ConfigService],
+     * })
+     *
+     *
+     * PrismaModule.forRootAsync({
+     *  useExisting: ConfigService,
+     * })
+     */
+    const inject = [
+      (options.useClass || options.useExisting) as Type<PrismaModuleFactory>,
+    ];
+    return {
+      provide: PRISMA_MODULE_OPTIONS,
+      useFactory: async (optionsFactory: PrismaModuleFactory) =>
+        await optionsFactory.createPrismaModuleOptions(),
+      inject,
+    };
+  }
 }

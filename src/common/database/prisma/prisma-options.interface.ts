@@ -1,3 +1,4 @@
+import { ModuleMetadata, Type } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 export interface PrismaModuleOptions {
@@ -29,4 +30,21 @@ export interface PrismaModuleOptions {
    * 用户自定义链接错误工厂
    */
   connectionErrorFactory?: Function;
+}
+
+export interface PrismaModuleFactory {
+  createPrismaModuleOptions():
+    | Promise<PrismaModuleOptions>
+    | PrismaModuleOptions;
+}
+
+export interface PrismaModuleAsyncOptions
+  extends Pick<ModuleMetadata, 'imports'> {
+  name?: string;
+  useExisting?: Type<PrismaModuleFactory>;
+  useClass?: Type<PrismaModuleFactory>;
+  useFactory?: (
+    ...args: any[]
+  ) => Promise<PrismaModuleOptions> | PrismaModuleOptions;
+  inject?: any[];
 }
