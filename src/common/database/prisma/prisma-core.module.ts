@@ -11,8 +11,8 @@ import { PrismaClient as PrismaPostgresqlCLient } from 'prisma-postgresql';
 import { catchError, defer, lastValueFrom } from 'rxjs';
 import {
   PrismaModuleAsyncOptions,
-  PrismaModuleFactory,
   PrismaModuleOptions,
+  PrismaOptionsFactory,
 } from './prisma-options.interface';
 import { PRISMA_MODULE_OPTIONS, PRISMACLIENT } from './prisma.constants';
 import { getDBTYpe, handleRetry } from './prisma.utils';
@@ -71,7 +71,7 @@ export class PrismaCoreModule implements OnApplicationShutdown {
         // 加入错误重试
         const client = await prismaConnectionErrorFactory(
           newOptions,
-          providerName,
+          'PrismaClient',
         );
 
         // 获取最后一次的值
@@ -177,7 +177,7 @@ export class PrismaCoreModule implements OnApplicationShutdown {
     if (options.useExisting || options.useFactory) {
       return [this.createAsyncOptionsProviders(options)];
     }
-    const useClass = options.useClass as Type<PrismaModuleFactory>;
+    const useClass = options.useClass as Type<PrismaOptionsFactory>;
     return [
       this.createAsyncOptionsProviders(options),
       {
@@ -230,11 +230,11 @@ export class PrismaCoreModule implements OnApplicationShutdown {
      * })
      */
     const inject = [
-      (options.useClass || options.useExisting) as Type<PrismaModuleFactory>,
+      (options.useClass || options.useExisting) as Type<PrismaModuleOptions>,
     ];
     return {
       provide: PRISMA_MODULE_OPTIONS,
-      useFactory: async (optionsFactory: PrismaModuleFactory) =>
+      useFactory: async (optionsFactory: PrismaOptionsFactory) =>
         await optionsFactory.createPrismaModuleOptions(),
       inject,
     };

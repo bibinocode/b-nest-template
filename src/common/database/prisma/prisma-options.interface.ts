@@ -32,7 +32,7 @@ export interface PrismaModuleOptions {
   connectionErrorFactory?: Function;
 }
 
-export interface PrismaModuleFactory {
+export interface PrismaOptionsFactory {
   createPrismaModuleOptions():
     | Promise<PrismaModuleOptions>
     | PrismaModuleOptions;
@@ -41,8 +41,8 @@ export interface PrismaModuleFactory {
 export interface PrismaModuleAsyncOptions
   extends Pick<ModuleMetadata, 'imports'> {
   name?: string;
-  useExisting?: Type<PrismaModuleFactory>;
-  useClass?: Type<PrismaModuleFactory>;
+  useExisting?: Type<PrismaOptionsFactory>;
+  useClass?: Type<PrismaOptionsFactory>;
   useFactory?: (
     ...args: any[]
   ) => Promise<PrismaModuleOptions> | PrismaModuleOptions;
