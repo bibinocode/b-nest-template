@@ -30,12 +30,10 @@ export class PrismaCoreModule implements OnApplicationShutdown {
       PrismaCoreModule.connections &&
       Object.keys(PrismaCoreModule.connections).length > 0
     ) {
-      for (const connection of PrismaCoreModule.connections.keys()) {
-        if (
-          connection?.$disconnect &&
-          typeof connection.$disconnect === 'function'
-        ) {
-          connection.$disconnect();
+      for (const connection of Object.keys(PrismaCoreModule.connections)) {
+        const client = PrismaCoreModule.connections[connection];
+        if (client?.$disconnect && typeof client.$disconnect === 'function') {
+          client.$disconnect();
         }
       }
     }
