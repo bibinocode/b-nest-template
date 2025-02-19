@@ -20,9 +20,12 @@ import {
   PRISMACLIENT,
 } from './prisma.constants';
 import { getDBTYpe, handleRetry } from './prisma.utils';
+import { PrismaCommonModule } from './prisma-common.module';
 
 @Global()
-@Module({})
+@Module({
+  imports: [PrismaCommonModule]
+})
 export class PrismaCoreModule implements OnApplicationShutdown {
   static connections: Record<string, any> = {};
   onApplicationShutdown() {

@@ -27,9 +27,12 @@ import {
   MongooseOptionsFactory,
   getConnectionToken,
 } from '@nestjs/mongoose';
+import { MongooseCommonModule } from './mongoose-common.module';
 
 @Global()
-@Module({})
+@Module({
+  imports: [MongooseCommonModule]
+})
 export class MongooseCoreModule implements OnApplicationShutdown {
   private static connections: Record<string, mongoose.Connection> = {};
   constructor(

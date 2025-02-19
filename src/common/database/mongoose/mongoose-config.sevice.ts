@@ -6,7 +6,7 @@ import {
 } from '@nestjs/mongoose';
 
 @Injectable()
-export class MongooseService implements MongooseOptionsFactory {
+export class MongooseConfigService implements MongooseOptionsFactory {
   constructor(@Inject(REQUEST) private readonly request: Request) {}
   createMongooseOptions():
     | Promise<MongooseModuleOptions>
