@@ -6,6 +6,7 @@ import { DatabaseModule } from './common/database/database.module';
 import { PrismaModule } from './common/database/prisma/prisma.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { MailerModule } from './common/mailer/mailer.module';
+import { AxiosModule } from './common/axios/axios.module';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -22,6 +23,7 @@ console.log('🚀 ~ file: app.module.ts:13 ~ isDev:', isDev);
       'mysql://root:DzeyJhtbx7mTE6AC@kmod.cn:3306/b-nest-server',
     ),
     DatabaseModule,
+    AxiosModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -27,7 +27,7 @@ const connections = new Map<string, DataSource>();
       inject: [],
       extraProviders: [],
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User], TYPEORM_DATABASE),
   ],
   providers: [
     TypeormProvider,
