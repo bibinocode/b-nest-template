@@ -9,6 +9,7 @@ import {
 import { PrismaClient as PrismaMysqlClient } from 'prisma-mysql';
 import { PrismaClient as PrismaPostgresqlCLient } from 'prisma-postgresql';
 import { catchError, defer, lastValueFrom } from 'rxjs';
+import { PrismaCommonModule } from './prisma-common.module';
 import {
   PrismaModuleAsyncOptions,
   PrismaModuleOptions,
@@ -20,11 +21,10 @@ import {
   PRISMACLIENT,
 } from './prisma.constants';
 import { getDBTYpe, handleRetry } from './prisma.utils';
-import { PrismaCommonModule } from './prisma-common.module';
 
 @Global()
 @Module({
-  imports: [PrismaCommonModule]
+  imports: [PrismaCommonModule],
 })
 export class PrismaCoreModule implements OnApplicationShutdown {
   static connections: Record<string, any> = {};

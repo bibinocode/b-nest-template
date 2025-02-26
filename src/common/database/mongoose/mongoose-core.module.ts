@@ -31,7 +31,7 @@ import { MongooseCommonModule } from './mongoose-common.module';
 
 @Global()
 @Module({
-  imports: [MongooseCommonModule]
+  imports: [MongooseCommonModule],
 })
 export class MongooseCoreModule implements OnApplicationShutdown {
   private static connections: Record<string, mongoose.Connection> = {};
@@ -109,6 +109,7 @@ export class MongooseCoreModule implements OnApplicationShutdown {
       useFactory: async (
         mongooseModuleOptions: MongooseModuleFactoryOptions,
       ): Promise<any> => {
+        if (mongooseModuleOptions) return; // 防止多数据库链接报错
         const {
           retryAttempts,
           retryDelay,

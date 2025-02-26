@@ -33,11 +33,11 @@ exports.$Enums = {}
 
 /**
  * Prisma Client JS version: 6.4.1
- * Query Engine version: a9055b89e58b4b5bfb59600785423b1db3d0e75d
+ * Query Engine version: 173f8d54f8d52e692c7e27e72a88314ec7aeff60
  */
 Prisma.prismaVersion = {
   client: "6.4.1",
-  engine: "a9055b89e58b4b5bfb59600785423b1db3d0e75d"
+  engine: "173f8d54f8d52e692c7e27e72a88314ec7aeff60"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -140,7 +140,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "D:\\ab_project\\b-nest-template\\prisma\\clients\\mysql",
+      "value": "/Users/ab/Desktop/node/b-nest-server/prisma/clients/mysql",
       "fromEnvVar": null
     },
     "config": {
@@ -149,12 +149,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\ab_project\\b-nest-template\\prisma\\schema.prisma",
+    "sourceFilePath": "/Users/ab/Desktop/node/b-nest-server/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -163,7 +163,7 @@ const config = {
   },
   "relativePath": "../..",
   "clientVersion": "6.4.1",
-  "engineVersion": "a9055b89e58b4b5bfb59600785423b1db3d0e75d",
+  "engineVersion": "173f8d54f8d52e692c7e27e72a88314ec7aeff60",
   "datasourceNames": [
     "db"
   ],
@@ -217,8 +217,8 @@ exports.PrismaClient = PrismaClient
 Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
-path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "prisma/clients/mysql/query_engine-windows.dll.node")
+path.join(__dirname, "libquery_engine-darwin-arm64.dylib.node");
+path.join(process.cwd(), "prisma/clients/mysql/libquery_engine-darwin-arm64.dylib.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
 path.join(process.cwd(), "prisma/clients/mysql/schema.prisma")
