@@ -1,5 +1,6 @@
 import { ModuleMetadata, Type } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma,PrismaClientExtends } from '@prisma/client';
+
 
 export interface PrismaModuleOptions {
   /**
@@ -9,7 +10,7 @@ export interface PrismaModuleOptions {
   /**
    * 链接配置
    */
-  options?: Prisma.PrismaClientOptions;
+  options?: PrismaClientExtends;
   /**
    * 链接注入别名
    */
