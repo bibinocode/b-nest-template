@@ -38,22 +38,31 @@ async function bootstrap() {
    */
   const apiPrefix = Config.get<string>('API_PREFIX', '/api');
   const apiVersion = Config.get<string>('API_VERSION');
-  let versions = [apiVersion];
-  if (apiVersion.indexOf(',')) {
-    versions = apiVersion.split(',');
-  }
+  // 根据 API_VERSION 是否存在决定使用 VERSION_NEUTRAL 还是版本数组
+  const versions = apiVersion
+    ? apiVersion.includes(',')
+      ? apiVersion.split(',')
+      : [apiVersion]
+    : VERSION_NEUTRAL;
+
+  console.log('🚀 versions', versions);
 
   app.setGlobalPrefix(apiPrefix);
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion:
-      typeof versions === 'undefined' ? VERSION_NEUTRAL : versions, // 如果环境变量没有配置版本号，则去兼容路由版本 和默认请求的兼容问题
+    defaultVersion: versions,
   });
+
+  /**
+   * 开启生命周期
+   */
+  app.enableShutdownHooks();
 
   /**
    * PORT配置
    */
   const PORT = Config.get<number>('PORT', 3000);
+  console.log('🚀 listen on port', PORT);
   await app.listen(PORT);
 }
 bootstrap();

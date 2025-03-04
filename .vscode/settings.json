@@ -6,8 +6,12 @@
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-"prettier.configPath": ".prettierrc",
-"cSpell.words": [
-    "preinstall"
-]
-}   
+  "prettier.configPath": ".prettierrc",
+  "cSpell.words": [
+    "datasource",
+    "ormconfig",
+    "preinstall",
+    "PRISMACLIENT",
+    "typeorm"
+  ]
+}

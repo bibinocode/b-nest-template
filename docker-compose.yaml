@@ -1,18 +1,5 @@
 version: '3.3'
 services:
-  db:
-    image: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: JHYnGfzMfmXS7Y6X
-      MYSQL_DATABASE: b-nest-server
-    ports:
-      - 3306:3306
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 9853:8080
   redis:
     image: bitnami/redis:latest
     container_name: redis
