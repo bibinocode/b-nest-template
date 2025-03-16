@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 
+import { AxiosModule } from './common/axios/axios.module';
 import { ConfigModule } from './common/config/config.module';
 import { DatabaseModule } from './common/database/database.module';
-import { PrismaModule } from './common/database/prisma/prisma.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { MailerModule } from './common/mailer/mailer.module';
-import { AxiosModule } from './common/axios/axios.module';
+import { EventsModule } from './events/events.module';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -19,11 +19,9 @@ console.log('🚀 ~ file: app.module.ts:13 ~ isDev:', isDev);
     ConfigModule,
     LoggerModule,
     MailerModule,
-    PrismaModule.forRoot(
-      'mysql://root:DzeyJhtbx7mTE6AC@kmod.cn:3306/b-nest-server',
-    ),
     DatabaseModule,
     AxiosModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [],

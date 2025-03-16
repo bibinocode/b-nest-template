@@ -4,10 +4,15 @@ import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { AppModule } from './app.module';
 import { AllExceptionFilter } from './common/filters/all-exception.filter';
-
+import { WsAdapter } from '@nestjs/platform-ws';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const Config = app.get(ConfigService);
+
+  /**
+   * WebSocket 网关适配
+   */
+  app.useWebSocketAdapter(new WsAdapter(app));
 
   /**
    * 设置全局Logger
