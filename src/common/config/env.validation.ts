@@ -14,6 +14,7 @@ export const baseConfigValidation = Joi.object({
     .default('development'),
   PORT: Joi.number().default(3000),
   LOG_ON: Joi.boolean().default(true),
+  JWT_SECRET: Joi.string().required().default('bgyyds12234234bgyyds123234234'),
 });
 
 /**

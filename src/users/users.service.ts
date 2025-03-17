@@ -3,30 +3,31 @@ import {
   ConflictException,
   NotFoundException,
   BadRequestException,
+  Inject,
 } from '@nestjs/common';
-import { PrismaService } from '../common/database/prisma/prisma-config.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import * as argon2 from 'argon2';
+import { UsersRepository } from './users.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private userRepository: UsersRepository) {}
 
   async create(createUserDto: CreateUserDto) {
     // 检查用户名是否已存在
-    const existingUsername = await this.prisma.users.findUnique({
-      where: { username: createUserDto.username },
-    });
+    const existingUsername = await this.userRepository.findByUsername(
+      createUserDto.username,
+    );
     if (existingUsername) {
       throw new ConflictException('用户名已存在');
     }
 
     // 检查邮箱是否已存在
-    const existingEmail = await this.prisma.users.findUnique({
-      where: { email: createUserDto.email },
-    });
+    const existingEmail = await this.userRepository.findByEmail(
+      createUserDto.email,
+    );
     if (existingEmail) {
       throw new ConflictException('邮箱已存在');
     }
@@ -35,59 +36,20 @@ export class UsersService {
     const hashedPassword = await argon2.hash(createUserDto.password);
 
     // 创建用户
-    const user = await this.prisma.users.create({
-      data: {
-        ...createUserDto,
-        password: hashedPassword,
-      },
-      select: {
-        id: true,
-        nickname: true,
-        username: true,
-        email: true,
-        avatar: true,
-        sex: true,
-        signature: true,
-        created_at: true,
-      },
+    const user = await this.userRepository.create({
+      ...createUserDto,
+      password: hashedPassword,
     });
 
     return user;
   }
 
   async findAll() {
-    return this.prisma.users.findMany({
-      select: {
-        id: true,
-        nickname: true,
-        username: true,
-        email: true,
-        avatar: true,
-        sex: true,
-        signature: true,
-        is_active: true,
-        created_at: true,
-        updated_at: true,
-      },
-    });
+    return this.userRepository.findAll();
   }
 
   async findOne(id: number) {
-    const user = await this.prisma.users.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        nickname: true,
-        username: true,
-        email: true,
-        avatar: true,
-        sex: true,
-        signature: true,
-        is_active: true,
-        created_at: true,
-        updated_at: true,
-      },
-    });
+    const user = await this.userRepository.findOne(id);
 
     if (!user) {
       throw new NotFoundException('用户不存在');
@@ -97,52 +59,31 @@ export class UsersService {
   }
 
   async findByUsername(username: string) {
-    return this.prisma.users.findUnique({
-      where: { username },
-    });
+    return this.userRepository.findByUsername(username);
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     // 检查用户是否存在
-    const user = await this.prisma.users.findUnique({
-      where: { id },
-    });
+    const user = await this.userRepository.findOne(id);
 
     if (!user) {
       throw new NotFoundException('用户不存在');
     }
 
     // 更新用户信息
-    return this.prisma.users.update({
-      where: { id },
-      data: updateUserDto,
-      select: {
-        id: true,
-        nickname: true,
-        username: true,
-        email: true,
-        avatar: true,
-        sex: true,
-        signature: true,
-        updated_at: true,
-      },
-    });
+    return this.userRepository.update(id, updateUserDto);
   }
 
   async remove(id: number) {
     // 检查用户是否存在
-    const user = await this.prisma.users.findUnique({
-      where: { id },
-    });
+    const user = await this.userRepository.findOne(id);
 
     if (!user) {
       throw new NotFoundException('用户不存在');
     }
 
     // 删除用户
-    await this.prisma.users.delete({
-      where: { id },
-    });
+    await this.userRepository.remove(id);
 
     return { message: '用户删除成功' };
   }
@@ -151,9 +92,7 @@ export class UsersService {
     const { username, password } = loginUserDto;
 
     // 查找用户
-    const user = await this.prisma.users.findUnique({
-      where: { username },
-    });
+    const user = await this.userRepository.findByUsername(username);
 
     if (!user) {
       throw new BadRequestException('用户名或密码错误');
@@ -177,17 +116,9 @@ export class UsersService {
 
   async recordLogin(userId: number, ip: string) {
     // 更新用户最后登录IP
-    await this.prisma.users.update({
-      where: { id: userId },
-      data: { last_login_ip: ip },
-    });
+    await this.userRepository.updateLastLoginIp(userId, ip);
 
     // 记录登录历史
-    await this.prisma.userLoginHistory.create({
-      data: {
-        ip,
-        b_users_id: userId,
-      },
-    });
+    await this.userRepository.createLoginHistory(userId, ip);
   }
 }

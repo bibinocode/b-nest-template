@@ -14,7 +14,7 @@ export class AllExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger();
 
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     // 获取HTTP适配器
     const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
