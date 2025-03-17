@@ -397,5 +397,5 @@ Temporary Items
 dist
 .webpack
 .serverless/**/*.zip
-prisma
 logs
+prisma/clients

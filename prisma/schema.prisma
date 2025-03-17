@@ -1,0 +1,243 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+    output   = "./clients/mysql"
+    // output   = "./clients/postgresql"
+}
+
+// 用户表
+model Users {
+    id              Int                @id @default(autoincrement())
+    nickname        String             @db.VarChar(45) // 用户昵称（唯一可重复，用于展示）
+    username        String             @unique() @db.VarChar(50) // 用户名（唯一可重复，用于登录）
+    password        String             @db.VarChar(255) // 用户密码
+    email           String             @unique @db.VarChar(120) // 邮箱 唯一
+    avatar          String?            @db.VarChar(255) // 头像
+    sex             Int                @default(2) @db.TinyInt // 性别 用户性别 1 = 女 2 = 男
+    signature       String?            @db.VarChar(255) // 个性签名
+    last_login_ip   String?            @db.VarChar(45) // 最后登录IP
+    is_active       Int                @default(1) @db.TinyInt // 账号状态：0 = 禁用，1 = 正常
+    created_at      DateTime           @default(now())
+    updated_at      DateTime           @updatedAt
+    oauth_providers OAuthProvider[] // 授权登录
+    login_histories UserLoginHistory[] // 用户登录历史
+    comments        Comment[] // 用户评论
+    article_views   ArticlePV[] // 用户浏览记录
+    subscriptions   Subscription[] // 用户订阅
+    payment_orders  PaymentOrder[] // 用户支付订单
+
+    @@map("b_users")
+}
+
+// 授权登录表
+model OAuthProvider {
+    id            Int      @id @default(autoincrement())
+    provider_name String   @db.VarChar(45) // OAuth 提供商名称
+    provider_id   String   @db.VarChar(255) // 提供商返回的唯一ID
+    access_token  String   @db.VarChar(255) // 访问令牌
+    created_at    DateTime @default(now())
+    user          Users    @relation(fields: [b_users_id], references: [id], onDelete: Cascade)
+    b_users_id    Int // 关联用户ID
+
+    @@map("b_oauth_provider")
+}
+
+// 用户登录历史表
+model UserLoginHistory {
+    id         Int      @id @default(autoincrement())
+    ip         String   @db.VarChar(45) // 登录IP
+    location   String?  @db.VarChar(120) // 登录地点
+    device     String?  @db.VarChar(255) // 登录设备
+    login_time DateTime @default(now()) // 登录时间
+    user       Users    @relation(fields: [b_users_id], references: [id], onDelete: Cascade)
+    b_users_id Int // 关联用户ID
+
+    @@map("b_user_login_history")
+}
+
+// 栏目表
+model Section {
+    id          Int        @id @default(autoincrement())
+    name        String     @db.VarChar(50) // 栏目名称
+    slug        String     @db.VarChar(50) // 栏目别名
+    description String?    @db.VarChar(255) // 栏目描述
+    sort_order  Int        @default(0) // 排序
+    is_featured Int        @default(0) @db.TinyInt // 是否置顶：0 否 1 是
+    created_at  DateTime   @default(now()) // 创建时间
+    updated_at  DateTime   @updatedAt // 更新时间
+    categories  Category[] // 关联分类
+
+    @@map("b_section")
+}
+
+// 分类表
+model Category {
+    id           Int        @id @default(autoincrement())
+    name         String     @db.VarChar(50) // 分类名称
+    description  String?    @db.VarChar(255) // 分类描述
+    sort_order   Int        @default(0) // 排序
+    created_at   DateTime   @default(now()) // 创建时间
+    updated_at   DateTime   @updatedAt // 更新时间
+    section      Section?   @relation(fields: [b_section_id], references: [id], onDelete: SetNull)
+    b_section_id Int? // 所属栏目ID
+    parent       Category?  @relation("CategoryToCategory", fields: [parent_id], references: [id], onDelete: SetNull)
+    parent_id    Int? // 父分类ID
+    children     Category[] @relation("CategoryToCategory")
+    articles     Article[] // 关联文章
+
+    @@map("b_category")
+}
+
+// 标签表
+model Tag {
+    id         Int          @id @default(autoincrement())
+    name       String       @db.VarChar(50) // 标签名称
+    created_at DateTime     @default(now()) // 创建时间
+    articles   ArticleTag[] // 关联文章
+
+    @@map("b_tag")
+}
+
+// 更新文章模型，添加知识库关联
+model Article {
+    id              Int                    @id @default(autoincrement())
+    title           String                 @db.VarChar(255)
+    slug            String                 @db.VarChar(255)
+    cover           String?                @db.VarChar(255)
+    summary         String?                @default("") @db.VarChar(160)
+    pv              Int                    @default(0)
+    status          Int                    @default(1) @db.TinyInt
+    created_at      DateTime               @default(now())
+    updated_at      DateTime               @updatedAt
+    category        Category?              @relation(fields: [b_category_id], references: [id], onDelete: SetNull)
+    b_category_id   Int?
+    tags            ArticleTag[] // 文章标签
+    content         ArticleContent? // 文章内容
+    comments        Comment[] // 评论
+    view_records    ArticlePV[] // 文章浏览记录
+    knowledge_bases KnowledgeBaseArticle[] // 关联知识库
+    payment_orders  PaymentOrder[] // 文章购买订单
+
+    @@map("b_article")
+}
+
+// 文章标签关联表
+model ArticleTag {
+    article    Article @relation(fields: [article_id], references: [id], onDelete: Cascade)
+    article_id Int
+    tag        Tag     @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+    tag_id     Int
+
+    @@id([article_id, tag_id])
+    @@map("b_article_tag")
+}
+
+// 文章内容表
+model ArticleContent {
+    id           Int     @id @default(autoincrement())
+    content      String  @db.LongText // 文章内容
+    content_hash String  @db.VarChar(255) // 内容哈希值
+    article      Article @relation(fields: [b_article_id], references: [id], onDelete: Cascade)
+    b_article_id Int     @unique // 关联文章ID
+
+    @@map("b_article_content")
+}
+
+// 评论表
+model Comment {
+    id           Int       @id @default(autoincrement())
+    content      String    @db.Text // 评论内容
+    is_approved  Int       @default(1) @db.TinyInt // 是否审核通过：0 未通过 1 已通过
+    created_at   DateTime  @default(now()) // 创建时间
+    user         Users     @relation(fields: [b_users_id], references: [id], onDelete: Cascade)
+    b_users_id   Int // 评论用户ID
+    article      Article   @relation(fields: [b_article_id], references: [id], onDelete: Cascade)
+    b_article_id Int // 关联文章ID
+    parent       Comment?  @relation("CommentToComment", fields: [parent_id], references: [id], onDelete: SetNull)
+    parent_id    Int? // 父评论ID
+    replies      Comment[] @relation("CommentToComment")
+
+    @@map("b_comment")
+}
+
+// 文章浏览记录表
+model ArticlePV {
+    id           BigInt   @id @default(autoincrement()) @db.BigInt
+    ip           String   @db.VarChar(45) // 访问IP
+    user_agent   String?  @db.VarChar(500) // 用户代理
+    referer      String?  @db.VarChar(500) // 来源页面
+    region       String?  @db.VarChar(120) // 访问地区
+    device_type  Int      @default(0) @db.TinyInt // 设备类型：0 未知 1 PC 2 移动设备
+    created_at   DateTime @default(now()) // 创建时间
+    user         Users?   @relation(fields: [b_users_id], references: [id], onDelete: SetNull)
+    b_users_id   Int? // 访问用户ID（可能为匿名访问）
+    article      Article  @relation(fields: [b_article_id], references: [id], onDelete: Cascade)
+    b_article_id Int // 关联文章ID
+
+    @@map("b_article_pv")
+}
+
+// 更新知识库模型，添加文章关联
+model KnowledgeBase {
+    id             Int                    @id @default(autoincrement())
+    title          String                 @db.VarChar(255)
+    description    String?                @db.Text
+    is_public      Int                    @default(1) @db.TinyInt
+    created_at     DateTime               @default(now())
+    updated_at     DateTime               @updatedAt
+    subscriptions  Subscription[] // 订阅
+    articles       KnowledgeBaseArticle[] // 关联文章
+    payment_orders PaymentOrder[] // 知识库订阅订单
+
+    @@map("b_knowledge_base")
+}
+
+// 知识库文章关联表
+model KnowledgeBaseArticle {
+    sort_order          Int           @default(0) // 文章在知识库中的排序
+    article             Article       @relation(fields: [b_article_id], references: [id], onDelete: Cascade)
+    b_article_id        Int
+    knowledge_base      KnowledgeBase @relation(fields: [b_knowledge_base_id], references: [id], onDelete: Cascade)
+    b_knowledge_base_id Int
+
+    @@id([b_article_id, b_knowledge_base_id])
+    @@map("b_knowledge_base_article")
+}
+
+// 订阅表
+model Subscription {
+    id                  Int           @id @default(autoincrement())
+    start_date          DateTime      @db.Date // 订阅开始日期
+    end_date            DateTime      @db.Date // 订阅结束日期
+    status              Int           @default(1) @db.TinyInt // 订阅状态：1  订阅中 2 过期 3 取消订阅
+    created_at          DateTime      @default(now()) // 创建时间
+    user                Users         @relation(fields: [b_users_id], references: [id], onDelete: Cascade)
+    b_users_id          Int // 订阅用户ID
+    knowledge_base      KnowledgeBase @relation(fields: [b_knowledge_base_id], references: [id], onDelete: Cascade)
+    b_knowledge_base_id Int // 订阅的知识库ID
+
+    @@map("b_subscription")
+}
+
+// 支付订单表
+model PaymentOrder {
+    id                  Int            @id @default(autoincrement())
+    order_no            String         @db.VarChar(50) // 订单号
+    amount              Decimal        @db.Decimal(10, 2) // 支付金额
+    payment_method      String         @db.VarChar(20) // 支付方式
+    status              Int            @default(1) @db.TinyInt // 订单状态：1 待支付 2 已支付 3 已取消 4 支付错误
+    created_at          DateTime       @default(now()) // 创建时间
+    paid_at             DateTime? // 支付时间
+    user                Users          @relation(fields: [b_users_id], references: [id], onDelete: Cascade)
+    b_users_id          Int // 用户ID
+    article             Article?       @relation(fields: [b_article_id], references: [id], onDelete: SetNull)
+    b_article_id        Int? // 文章ID（可选，购买单篇文章）
+    knowledge_base      KnowledgeBase? @relation(fields: [b_knowledge_base_id], references: [id], onDelete: SetNull)
+    b_knowledge_base_id Int? // 知识库ID（可选，订阅知识库）
+
+    @@map("b_payment_order")
+}

@@ -8,6 +8,7 @@
   },
   "prettier.configPath": ".prettierrc",
   "cSpell.words": [
+    "autoincrement",
     "datasource",
     "ormconfig",
     "preinstall",
