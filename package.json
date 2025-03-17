@@ -24,8 +24,10 @@
     "package:check": "pnpm dlx npm-check -u",
     "typeorm": "typeorm-ts-node-commonjs -d ormconfig.ts",
     "typeorm:sync": "pnpm typeorm schema:sync",
-    "npm-check":"pnpm dlx npm-check -u",
-    "prisma:init":"pnpm dlx prisma migrate dev --name init"
+    "npm-check": "pnpm dlx npm-check -u",
+    "prisma:init": "pnpm dlx prisma migrate dev --name init",
+    "prisma:studio": "pnpm dlx prisma studio",
+    "prisma:reset": "pnpm dlx prisma migrate reset"
   },
   "engines": {
     "npm": ">=8.0.0",
@@ -45,6 +47,7 @@
     "@nestjs/typeorm": "^11.0.0",
     "@prisma/client": "6.5.0",
     "add": "^2.0.6",
+    "common@10.0": "link:nestjs/common@10.0",
     "handlebars": "^4.7.8",
     "iconv-lite": "^0.6.3",
     "ioredis": "^5.6.0",
@@ -54,7 +57,6 @@
     "nest-typescript-starter": "link:",
     "nest-winston": "^1.10.2",
     "nodemailer": "^6.10.0",
-    "common@10.0": "link:nestjs/common@10.0",
     "prisma-mysql": "link:prisma/clients/mysql",
     "prisma-postgresql": "link:prisma/clients/postgresql",
     "reflect-metadata": "^0.2.2",
@@ -68,6 +70,7 @@
   "devDependencies": {
     "@nestjs/cli": "^11.0.5",
     "@nestjs/schematics": "^11.0.2",
+    "@nestjs/swagger": "^11.0.6",
     "@nestjs/testing": "^11.0.11",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.11.10",

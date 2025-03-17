@@ -51,7 +51,7 @@ export class PrismaCoreModule implements OnApplicationShutdown {
       retryDelay = 3000,
       connectionFactory,
       connectionErrorFactory,
-    } = _options;
+    } = _options as { url: string } & Record<string, any>;
     let newOptions = {
       datasourceUrl: url,
     };
@@ -64,7 +64,7 @@ export class PrismaCoreModule implements OnApplicationShutdown {
     }
 
     const dbType = getDBTYpe(url);
-    let _prismaClient;
+    let _prismaClient: any;
     if (dbType === 'mysql') {
       _prismaClient = PrismaMysqlClient;
     } else if (dbType === 'postgresql') {
@@ -79,10 +79,11 @@ export class PrismaCoreModule implements OnApplicationShutdown {
      * PrismaModule.forRoot('postgresql://root:123455@localhost:5432/test','postgresql1')
      */
     const providerName = connectionName || PRISMACLIENT;
-    const prismaConnectionErrorFactory =
+    const prismaConnectionFactory =
       connectionFactory ||
-      (async (clientOptions) => await new _prismaClient(clientOptions));
-    connectionErrorFactory || ((error) => error);
+      (async (clientOptions: any) => new _prismaClient(clientOptions));
+    const handleConnectionError =
+      connectionErrorFactory || ((error: any) => error);
     // 实现client连接
     const prismaClientProviders: Provider = {
       provide: providerName,
@@ -91,10 +92,7 @@ export class PrismaCoreModule implements OnApplicationShutdown {
           return this.connections[url];
         }
         // 加入错误重试
-        const client = await prismaConnectionErrorFactory(
-          newOptions,
-          providerName,
-        );
+        const client = await prismaConnectionFactory(newOptions, providerName);
         this.connections[url] = client;
         // 获取最后一次的值
         return lastValueFrom(
@@ -104,7 +102,7 @@ export class PrismaCoreModule implements OnApplicationShutdown {
             handleRetry(retryAttempts, retryDelay),
             // 错误处理
             catchError((error) => {
-              throw prismaConnectionErrorFactory(error);
+              throw handleConnectionError(error);
             }),
           ),
         ).then(() => client);
@@ -137,7 +135,7 @@ export class PrismaCoreModule implements OnApplicationShutdown {
           retryDelay = 3000,
           connectionFactory,
           connectionErrorFactory,
-        } = prismaModuleOptions;
+        } = prismaModuleOptions as { url: string } & Record<string, any>;
 
         let newOptions = {
           datasourceUrl: url,
@@ -150,7 +148,7 @@ export class PrismaCoreModule implements OnApplicationShutdown {
         }
 
         const dbType = getDBTYpe(url);
-        let _prismaClient;
+        let _prismaClient: any;
         if (dbType === 'mysql') {
           _prismaClient = PrismaMysqlClient;
         } else if (dbType === 'postgresql') {
@@ -161,8 +159,9 @@ export class PrismaCoreModule implements OnApplicationShutdown {
 
         const prismaConnectionErrorFactory =
           connectionFactory ||
-          (async (clientOptions) => await new _prismaClient(clientOptions));
-        connectionErrorFactory || ((error) => error);
+          (async (clientOptions: any) =>
+            await new _prismaClient(clientOptions));
+        connectionErrorFactory || ((error: any) => error);
 
         // 只需要返回实例，和错误处理重试就行
         return lastValueFrom(
