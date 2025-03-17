@@ -1,6 +1,5 @@
 import { ModuleMetadata, Type } from '@nestjs/common';
-import { Prisma,PrismaClientExtends } from '@prisma/client';
-
+import { Prisma, PrismaClientExtends } from '@prisma/client';
 
 export interface PrismaModuleOptions {
   /**

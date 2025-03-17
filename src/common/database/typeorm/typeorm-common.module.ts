@@ -5,6 +5,7 @@ import { TypeormConfigService } from './typeorm-config.service';
 import { TYPEORM_CONNECTIONS } from './typeorm.constants';
 import { TypeormProvider } from './typeorm.provider';
 import { DataSourceOptions } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 const connections = new Map<string, DataSource>();
 @Module({
@@ -12,6 +13,7 @@ const connections = new Map<string, DataSource>();
     TypeOrmModule.forRootAsync({
       name: TYPEORM_DATABASE,
       useClass: TypeormConfigService,
+      // @ts-ignore
       dataSourceFactory: async (
         options: DataSourceOptions & { tenantId: string },
       ) => {
@@ -26,7 +28,7 @@ const connections = new Map<string, DataSource>();
       inject: [],
       extraProviders: [],
     }),
-    TypeOrmModule.forFeature([], TYPEORM_DATABASE),
+    // TypeOrmModule.forFeature([], TYPEORM_DATABASE), // 在使用的模块导入
   ],
   providers: [
     TypeormProvider,

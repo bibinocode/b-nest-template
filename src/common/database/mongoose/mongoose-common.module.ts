@@ -9,7 +9,7 @@ import { MongooseModule } from './mongoose.module';
         useClass: MongooseConfigService,
       }),
     ),
-    forwardRef(() => MongooseModule.forFeature([])),
+    // forwardRef(() => MongooseModule.forFeature([])), 在具体模块引入
   ],
 })
 export class MongooseCommonModule {}
