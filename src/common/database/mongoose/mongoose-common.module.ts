@@ -1,13 +1,15 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseConfigService } from './mongoose-config.sevice';
 import { MongooseModule } from './mongoose.module';
 
 @Module({
   imports: [
-    MongooseModule.forRootAsync({
-      useClass: MongooseConfigService,
-    }),
-    MongooseModule.forFeature([]),
+    forwardRef(() =>
+      MongooseModule.forRootAsync({
+        useClass: MongooseConfigService,
+      }),
+    ),
+    forwardRef(() => MongooseModule.forFeature([])),
   ],
 })
 export class MongooseCommonModule {}

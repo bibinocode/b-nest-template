@@ -1,6 +1,6 @@
 import { utilities } from 'nest-winston';
 import * as winston from 'winston';
-import * as DailyRotateFile from 'winston-daily-rotate-file';
+import DailyRotateFile from 'winston-daily-rotate-file';
 import { Console } from 'winston/lib/winston/transports';
 
 export const consoleTransport = new Console({

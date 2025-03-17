@@ -1,5 +1,6 @@
 import {
   DynamicModule,
+  forwardRef,
   Global,
   Inject,
   Module,
@@ -31,7 +32,7 @@ import { MongooseCommonModule } from './mongoose-common.module';
 
 @Global()
 @Module({
-  imports: [MongooseCommonModule],
+  imports: [forwardRef(() => MongooseCommonModule)],
 })
 export class MongooseCoreModule implements OnApplicationShutdown {
   private static connections: Record<string, mongoose.Connection> = {};

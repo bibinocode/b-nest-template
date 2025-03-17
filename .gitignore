@@ -398,3 +398,4 @@ dist
 .webpack
 .serverless/**/*.zip
 prisma
+logs

@@ -17,12 +17,12 @@ import { ConfigService } from '@nestjs/config';
             dir: __dirname + '/templates',
             adapter: new HandlebarsAdapter(),
             options: {
-              strict: true
-            }
-          }
-        }
-      }
+              strict: true,
+            },
+          },
+        };
+      },
     }),
-  ]
+  ],
 })
 export class MailerModule {}
