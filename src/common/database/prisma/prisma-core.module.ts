@@ -1,5 +1,6 @@
 import {
   DynamicModule,
+  forwardRef,
   Global,
   Module,
   OnApplicationShutdown,
@@ -24,7 +25,7 @@ import { getDBTYpe, handleRetry } from './prisma.utils';
 
 @Global()
 @Module({
-  imports: [PrismaCommonModule],
+  imports: [forwardRef(() => PrismaCommonModule)],
 })
 export class PrismaCoreModule implements OnApplicationShutdown {
   static connections: Record<string, any> = {};
