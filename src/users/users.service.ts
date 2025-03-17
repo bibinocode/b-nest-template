@@ -5,9 +5,9 @@ import {
   BadRequestException,
   Inject,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
+import { LoginUserDto } from '../auth/dto/login-user.dto';
 import * as argon2 from 'argon2';
 import { UsersRepository } from './users.repository';
 

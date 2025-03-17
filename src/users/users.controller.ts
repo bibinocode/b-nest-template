@@ -1,53 +1,25 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
   Delete,
   UseGuards,
   Req,
-  HttpCode,
-  HttpStatus,
   BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Request } from 'express';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+
 @ApiTags('用户')
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-
-  @ApiOperation({ summary: '用户注册' })
-  @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
-  @ApiOperation({ summary: '用户登录' })
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() loginUserDto: LoginUserDto, @Req() req: Request) {
-    const user = await this.usersService.validateUser(loginUserDto);
-
-    // 记录登录信息
-    const ip = req.ip || '未知IP';
-    await this.usersService.recordLogin(user.id, ip);
-
-    // 这里应该返回JWT令牌，但需要与Auth模块集成
-    // 暂时返回用户信息
-    return {
-      message: '登录成功',
-      user,
-    };
-  }
 
   @ApiOperation({ summary: '获取所有用户' })
   @Get()

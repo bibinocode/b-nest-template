@@ -4,6 +4,7 @@ import { UsersController } from './users.controller';
 import { PrismaModule } from '../common/database/prisma/prisma.module';
 import { UsersRepository } from './users.repository';
 import { UsersPrismaRepository } from './repository/users.prisma.repository';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [],

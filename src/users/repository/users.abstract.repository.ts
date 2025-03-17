@@ -1,4 +1,4 @@
-import { CreateUserDto } from '../dto/create-user.dto';
+import { CreateUserDto } from '../../auth/dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { Users } from 'prisma-mysql';
 

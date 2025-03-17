@@ -4,7 +4,7 @@ import { Request } from 'express';
 import { UsersPrismaRepository } from './repository/users.prisma.repository';
 import { UserAbstractRepository } from './repository/users.abstract.repository';
 import { Users } from 'prisma/clients/mysql';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 export class UsersRepository implements UserAbstractRepository {
