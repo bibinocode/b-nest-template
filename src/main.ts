@@ -16,11 +16,6 @@ async function bootstrap() {
   app.useWebSocketAdapter(new WsAdapter(app));
 
   /**
-   * 生成 Swagger 文档
-   */
-  generateDocument(app);
-
-  /**
    * 设置全局Logger
    */
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
@@ -63,6 +58,12 @@ async function bootstrap() {
     type: VersioningType.URI,
     defaultVersion: versions,
   });
+
+  /**
+   * 生成 Swagger 文档
+   * 确保在设置前缀和版本化后,不然不会自动识别到版本
+   */
+  generateDocument(app);
 
   /**
    * 开启生命周期

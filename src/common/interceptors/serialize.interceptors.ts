@@ -25,6 +25,8 @@ export class SerializeInterceptor implements NestInterceptor {
           // @Exclude() -> 不需要暴露的属性
           // 配置 false 好一点,只需要配置@Exclude() 的属性,其他属性都会暴露
           excludeExtraneousValues: false,
+          // 控制值的严格转换 会根据 @Type(()=>String) 装饰器对齐进行序列化转换
+          enableImplicitConversion: true,
         });
       }),
     );

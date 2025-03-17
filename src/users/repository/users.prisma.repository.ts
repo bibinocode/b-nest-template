@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PrismaConfigService } from '../../common/database/prisma/prisma-config.service';
-import { UserAbstractRepository } from './users.abstract.respository';
+import { UserAbstractRepository } from './users.abstract.repository';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
-import { PrismaClient, Users } from 'prisma-mysql';
+import { Users } from 'prisma-mysql';
 import { PRISMACLIENT } from 'src/common/database/prisma/prisma.constants';
+import { PRISMA_DATABASE } from 'src/common/database/database.constants';
 
 @Injectable()
 export class UsersPrismaRepository implements UserAbstractRepository {
-  constructor(@Inject(PRISMACLIENT) private prisma: PrismaClient) {}
+  constructor(@Inject(PRISMA_DATABASE) private prisma: any) {}
 
   async create(createUserDto: CreateUserDto): Promise<Partial<Users>> {
     return this.prisma.users.create({

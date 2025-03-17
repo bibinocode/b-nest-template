@@ -1,8 +1,8 @@
 import { Inject } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { UsersPrismaRepository } from './respository/users.prisma.repository';
-import { UserAbstractRepository } from './respository/users.abstract.respository';
+import { UsersPrismaRepository } from './repository/users.prisma.repository';
+import { UserAbstractRepository } from './repository/users.abstract.repository';
 import { Users } from 'prisma/clients/mysql';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
