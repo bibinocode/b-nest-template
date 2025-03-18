@@ -9,19 +9,16 @@ import {
 import { AuthService } from './auth.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
-import { UsersService } from 'src/users/users.service';
 import { Public } from 'src/common/decorators/public.decorator';
 import { UserProfileVO } from 'src/users/interface/users.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import * as RequestIp from 'request-ip';
 
 @ApiTags('认证')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
   @ApiOperation({ summary: '用户注册' })
   @ApiResponse({
     status: 200,
@@ -31,7 +28,7 @@ export class AuthController {
   @Post('register')
   @Public()
   async register(@Body() createUserDto: CreateUserDto): Promise<UserProfileVO> {
-    const user = await this.usersService.create(createUserDto);
+    const user = await this.authService.create(createUserDto);
     return new UserProfileVO({ ...(user as UserProfileVO) });
   }
 
@@ -43,7 +40,7 @@ export class AuthController {
     const user = await this.authService.validateUser(loginUserDto);
 
     // 记录登录信息
-    const ip = req.ip || '未知IP';
+    const ip = RequestIp.getClientIp(req) || '未知IP';
     await this.authService.recordLogin(user.id, ip);
 
     const access_token = await this.authService.signin({

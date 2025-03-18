@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { UsersPrismaRepository } from './repository/users.prisma.repository';
@@ -7,6 +7,7 @@ import { Users } from 'prisma/clients/mysql';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
+@Injectable()
 export class UsersRepository implements UserAbstractRepository {
   constructor(
     @Inject(REQUEST) private request: Request,

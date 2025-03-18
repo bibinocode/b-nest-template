@@ -3,7 +3,6 @@ import { UserAbstractRepository } from './users.abstract.repository';
 import { CreateUserDto } from '../../auth/dto/create-user.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { PrismaClient, Users } from 'prisma-mysql';
-import { PRISMACLIENT } from 'src/common/database/prisma/prisma.constants';
 import { PRISMA_DATABASE } from 'src/common/database/database.constants';
 
 @Injectable()

@@ -1,4 +1,8 @@
-import { VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
+import {
+  VERSION_NEUTRAL,
+  VersioningType,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -6,9 +10,24 @@ import { AppModule } from './app.module';
 import { AllExceptionFilter } from './common/filters/all-exception.filter';
 import { WsAdapter } from '@nestjs/platform-ws';
 import { generateDocument } from './doc';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const Config = app.get(ConfigService);
+
+  /**
+   * 全局管道验证
+   */
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // 去除在验证类中不存在的属性
+      transform: true, // 自动转换类型
+      forbidNonWhitelisted: true, // 禁止在验证类中不存在的属性
+      transformOptions: {
+        enableImplicitConversion: true, // 启用隐式转换
+      },
+    }),
+  );
 
   /**
    * WebSocket 网关适配

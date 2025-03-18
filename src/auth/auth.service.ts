@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -8,12 +9,43 @@ import { UsersRepository } from 'src/users/users.repository';
 import * as argon2 from 'argon2';
 import { JwtPayload } from './interface/jwt-payload.interface';
 import { LoginUserDto } from './dto/login-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private userRepository: UsersRepository,
   ) {}
+
+  async create(createUserDto: CreateUserDto) {
+    // 检查用户名是否已存在
+    const existingUsername = await this.userRepository.findByUsername(
+      createUserDto.username,
+    );
+    if (existingUsername) {
+      throw new ConflictException('用户名已存在');
+    }
+
+    // 检查邮箱是否已存在
+    const existingEmail = await this.userRepository.findByEmail(
+      createUserDto.email,
+    );
+    if (existingEmail) {
+      throw new ConflictException('邮箱已存在');
+    }
+
+    // 使用 argon2 加密密码
+    const hashedPassword = await argon2.hash(createUserDto.password);
+
+    // 创建用户
+    const user = await this.userRepository.create({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
+    return user;
+  }
 
   /**
    * 验证用户

@@ -14,35 +14,6 @@ import { UsersRepository } from './users.repository';
 export class UsersService {
   constructor(private userRepository: UsersRepository) {}
 
-  async create(createUserDto: CreateUserDto) {
-    // 检查用户名是否已存在
-    const existingUsername = await this.userRepository.findByUsername(
-      createUserDto.username,
-    );
-    if (existingUsername) {
-      throw new ConflictException('用户名已存在');
-    }
-
-    // 检查邮箱是否已存在
-    const existingEmail = await this.userRepository.findByEmail(
-      createUserDto.email,
-    );
-    if (existingEmail) {
-      throw new ConflictException('邮箱已存在');
-    }
-
-    // 使用 argon2 加密密码
-    const hashedPassword = await argon2.hash(createUserDto.password);
-
-    // 创建用户
-    const user = await this.userRepository.create({
-      ...createUserDto,
-      password: hashedPassword,
-    });
-
-    return user;
-  }
-
   async findAll() {
     return this.userRepository.findAll();
   }
