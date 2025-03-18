@@ -10,11 +10,8 @@ export class AppService implements OnApplicationShutdown {
   async onApplicationShutdown() {
     if (this.connections.size > 0) {
       for (const connection of this.connections.keys()) {
-        this.connections.get(connection).destroy();
+        this.connections.get(connection)?.destroy();
       }
     }
-  }
-  getHello() {
-    return 'Hello World';
   }
 }

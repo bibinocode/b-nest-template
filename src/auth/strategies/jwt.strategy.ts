@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { JwtPayload } from '../interface/jwt-payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -13,7 +14,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
-    return { userId: payload.sub, email: payload.email };
+  /**
+   * 验证 JWT 载体
+   * @param payload JWT 载体
+   * @returns 返回的数据会被挂在到 request 对象上
+   */
+  async validate(payload: JwtPayload) {
+    console.log('🚀 当前 JWT 载体', payload);
+    return {
+      userId: payload.sub,
+      username: payload.username,
+      email: payload.email,
+    };
   }
 }

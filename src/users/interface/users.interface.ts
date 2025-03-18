@@ -1,15 +1,19 @@
-import { Exclude } from 'class-transformer';
-import { CreateUserDto } from '../../auth/dto/create-user.dto';
-
 /**
- * 返回序列
+ * 个人信息返回序列
  */
-export class UsersInterface extends CreateUserDto {
-  @Exclude()
-  declare password: string;
-
-  constructor(partial: Partial<UsersInterface>) {
-    super();
+export class UserProfileVO {
+  id!: number;
+  nickname!: string;
+  username!: string;
+  email!: string;
+  avatar!: string;
+  sex!: number;
+  signature!: string;
+  last_login_ip!: string;
+  is_active!: number;
+  created_at!: Date;
+  updated_at!: Date;
+  constructor(partial: Partial<UserProfileVO>) {
     Object.assign(this, partial);
   }
 }

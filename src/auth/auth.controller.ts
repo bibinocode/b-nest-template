@@ -11,7 +11,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 import { UsersService } from 'src/users/users.service';
 import { Public } from 'src/common/decorators/public.decorator';
-import { UsersInterface } from 'src/users/interface/users.interface';
+import { UserProfileVO } from 'src/users/interface/users.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 
@@ -26,15 +26,13 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description: '用户注册成功',
-    type: UsersInterface,
+    type: UserProfileVO,
   })
   @Post('register')
   @Public()
-  async register(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<UsersInterface> {
+  async register(@Body() createUserDto: CreateUserDto): Promise<UserProfileVO> {
     const user = await this.usersService.create(createUserDto);
-    return new UsersInterface({ ...(user as UsersInterface) });
+    return new UserProfileVO({ ...(user as UserProfileVO) });
   }
 
   @ApiOperation({ summary: '用户登录' })
@@ -42,25 +40,30 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Public()
   async login(@Body() loginUserDto: LoginUserDto, @Req() req: Request) {
-    const user = await this.usersService.validateUser(loginUserDto);
+    const user = await this.authService.validateUser(loginUserDto);
 
     // 记录登录信息
     const ip = req.ip || '未知IP';
-    await this.usersService.recordLogin(user.id, ip);
+    await this.authService.recordLogin(user.id, ip);
+
     const access_token = await this.authService.signin({
-      nickname: user.nickname,
+      id: user.id,
       username: user.username,
       email: user.email,
-      avatar: user.avatar,
-      sex: user.sex,
-      signature: user.signature,
-      id: user.id,
-      last_login_ip: ip,
     });
 
     return {
       message: '登录成功',
       access_token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        nickname: user.nickname,
+        avatar: user.avatar,
+        sex: user.sex,
+        signature: user.signature,
+      },
     };
   }
 }

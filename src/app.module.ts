@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 
 import { AxiosModule } from './common/axios/axios.module';
 import { ConfigModule } from './common/config/config.module';
@@ -27,7 +26,6 @@ console.log('🚀 ~ file: app.module.ts:13 ~ isDev:', isDev);
     AuthModule,
     UsersModule,
   ],
-  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}

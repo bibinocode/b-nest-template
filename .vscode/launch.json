@@ -5,13 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "npm run start:debug",
+      "name": "npm run start:dev",
       "request": "launch",
       "runtimeArgs": [
         "run-script",
-        "start:debug"
+        "start:dev"
       ],
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "pnpm",
       "internalConsoleOptions": "neverOpen",
       "skipFiles": [
         "<node_internals>/**"

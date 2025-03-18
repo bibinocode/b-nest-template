@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from '../auth/dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { LoginUserDto } from '../auth/dto/login-user.dto';
 import * as argon2 from 'argon2';
 import { UsersRepository } from './users.repository';
 
@@ -86,39 +85,5 @@ export class UsersService {
     await this.userRepository.remove(id);
 
     return { message: '用户删除成功' };
-  }
-
-  async validateUser(loginUserDto: LoginUserDto) {
-    const { username, password } = loginUserDto;
-
-    // 查找用户
-    const user = await this.userRepository.findByUsername(username);
-
-    if (!user) {
-      throw new BadRequestException('用户名或密码错误');
-    }
-
-    // 检查用户状态
-    if (user.is_active !== 1) {
-      throw new BadRequestException('账号已被禁用');
-    }
-
-    // 使用 argon2 验证密码
-    const isPasswordValid = await argon2.verify(user.password, password);
-    if (!isPasswordValid) {
-      throw new BadRequestException('用户名或密码错误');
-    }
-
-    // 返回用户信息（不包含密码）
-    const { password: _, ...result } = user;
-    return result;
-  }
-
-  async recordLogin(userId: number, ip: string) {
-    // 更新用户最后登录IP
-    await this.userRepository.updateLastLoginIp(userId, ip);
-
-    // 记录登录历史
-    await this.userRepository.createLoginHistory(userId, ip);
   }
 }

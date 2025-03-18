@@ -29,6 +29,12 @@ export class AllExceptionFilter implements ExceptionFilter {
     const msg: unknown = exception['response'] || 'Internal Server Error';
 
     // ? 这里可以加入更多的处理逻辑
+    // ? 比如：
+    // ? 1. 记录日志
+    // ? 2. 发送邮件
+    // ? 3. 发送短信
+    // ? 4. 发送钉钉消息
+    // ? 5. 发送飞书消息
 
     const responseBody = {
       headers: request.headers,
